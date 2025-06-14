@@ -6,38 +6,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
     <style>
-      body {
-        background-color: #f8f9fa;
-      }
-      .admin-header {
-        background-color: #6f42c1;
-        color: white;
-        padding: 1rem;
-      }
-      .btn-purple {
-        background-color: #6f42c1;
-        color: white;
-      }
-      .btn-purple:hover {
-        background-color: #5a34a1;
-      }
-      #adminPanel {
-        display: none;
-      }
-      .bg-purple {
-        background-color: #6f42c1;
-      }
-      .text-white {
-        color: white;
-      }
-      .admin-page footer.transparent-footer {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-      }
+      body { background-color: #f8f9fa; }
+      .admin-header { background-color: #6f42c1; color: white; padding: 1rem; }
+      .btn-purple { background-color: #6f42c1; color: white; }
+      .btn-purple:hover { background-color: #5a34a1; }
+      #adminPanel { display: none; }
     </style>
   </head>
-  <body class="admin-page">
+  <body>
     <div class="container mt-5">
       <h2 class="text-center mb-4">Login Administrativo</h2>
       <form id="loginForm" class="w-50 mx-auto">
@@ -57,22 +37,14 @@
 
         <h3 class="mt-4">Gerenciar Notícias</h3>
         <form id="newsForm" class="mb-4">
-          <div class="mb-2">
-            <input type="text" id="title" name="title" class="form-control" placeholder="Título" required />
-          </div>
-          <div class="mb-2">
-            <input type="text" id="subtitle" name="subtitle" class="form-control mt-2" placeholder="Subtítulo" />
-          </div>
-          <div class="mb-2">
-            <div id="editor-container" style="height: 150px;"></div>
-            <input type="hidden" name="content" id="content" />
-          </div>
-          <div class="mb-3">
-            <label for="image" class="form-label">Imagem</label>
-            <input type="file" class="form-control" id="image" accept="image/*" />
-          </div>
+          <input type="text" id="title" class="form-control mb-2" placeholder="Título" required />
+          <input type="text" id="subtitle" class="form-control mb-2" placeholder="Subtítulo" />
+          <div id="editor-container" style="height: 150px;" class="mb-2"></div>
+          <input type="hidden" id="content" />
+          <label for="image" class="form-label">Imagem</label>
+          <input type="file" id="image" class="form-control mb-2" accept="image/*" />
           <label for="type">Tipo de notícia:</label>
-          <select id="type" name="type" required class="form-control mb-3">
+          <select id="type" required class="form-control mb-3">
             <option value="">Selecione o tipo</option>
             <option value="Atualização">Atualização</option>
             <option value="Novidades">Novidades</option>
@@ -86,50 +58,23 @@
       </div>
     </div>
 
-    <footer class="text-center text-light py-4 transparent-footer"></footer>
-
-    <!-- Modal de Edição -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <form id="editForm">
-            <div class="modal-header bg-purple text-white">
-              <h5 class="modal-title" id="editModalLabel">Editar Notícia</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-              <input type="text" id="editTitle" class="form-control mb-3" placeholder="Título" required />
-              <input type="text" id="editSubtitle" class="form-control mb-3" placeholder="Subtítulo" />
-              <textarea id="editContent" class="form-control mb-3" rows="5" placeholder="Conteúdo" required></textarea>
-              <div class="mb-3">
-                <label class="form-label">Imagem Atual:</label>
-                <div id="currentImage" class="mb-2"></div>
-                <input type="file" id="editImage" class="form-control" accept="image/*" />
-                <button type="button" id="removeImage" class="btn btn-sm btn-outline-danger mt-2">Remover Imagem</button>
-              </div>
-              <div class="form-group">
-                <label for="editType">Tipo de notícia</label>
-                <select id="editType" name="type" class="form-control" required>
-                  <option value="">Selecione o tipo</option>
-                  <option value="Atualização">Atualização</option>
-                  <option value="Novidades">Novidades</option>
-                  <option value="Comunidade">Comunidade</option>
-                  <option value="Evento">Evento</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-purple">Salvar Alterações</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
+	const firebaseConfig = {
+	  apiKey: "AIzaSyBXIMj62bxOl5m4q0t_va0BrUJqldUfHfE",
+	  authDomain: "arsenal33i.firebaseapp.com",
+	  projectId: "arsenal33i",
+	  storageBucket: "arsenal33i.firebasestorage.app",
+	  messagingSenderId: "81028420714",
+	  appId: "1:81028420714:web:928e9644dd89a7f0252613",
+	  measurementId: "G-0M2H3N7P30"
+	};
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const storage = firebase.storage();
+
       const quill = new Quill('#editor-container', { theme: 'snow' });
       const loginForm = document.getElementById('loginForm');
       const adminPanel = document.getElementById('adminPanel');
@@ -137,9 +82,6 @@
       const newsForm = document.getElementById('newsForm');
       const newsList = document.getElementById('newsList');
       const PASSWORD = '123';
-      let news = JSON.parse(localStorage.getItem('news')) || [];
-      let editIndex = -1;
-      let imageRemoved = false;
 
       function fileToBase64(file) {
         return new Promise((resolve, reject) => {
@@ -150,92 +92,59 @@
         });
       }
 
-      function renderNews() {
+      async function salvarNoticiaFirestore(noticia) {
+        await db.collection('noticias').add(noticia);
+      }
+
+      async function carregarNoticias() {
         newsList.innerHTML = '';
-        news.forEach((item, index) => {
+        const snapshot = await db.collection('noticias').orderBy('date', 'desc').get();
+        snapshot.forEach(doc => {
+          const data = doc.data();
           const li = document.createElement('li');
-          li.className = 'list-group-item d-flex justify-content-between align-items-center';
-          li.innerHTML = `
-            <strong class="text-truncate" style="max-width: 80%;">${item.title}</strong>
-            <div>
-              <button class="btn btn-sm btn-warning me-2" onclick="editNews(${index})">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-              <button class="btn btn-sm btn-danger" onclick="deleteNews(${index})">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          `;
+          li.className = 'list-group-item';
+          li.textContent = `${data.title} - ${new Date(data.date).toLocaleDateString('pt-BR')}`;
           newsList.appendChild(li);
         });
       }
 
-      function resetForm() {
-        editIndex = -1;
+      newsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        document.getElementById('content').value = quill.root.innerHTML;
+
+        const title = document.getElementById('title').value.trim();
+        const subtitle = document.getElementById('subtitle').value.trim();
+        const content = document.getElementById('content').value;
+        const type = document.getElementById('type').value;
+        const imageInput = document.getElementById('image');
+
+        if (!title || !type || !content) {
+          alert('Preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        let imageUrl = null;
+        if (imageInput.files.length > 0) {
+          const file = imageInput.files[0];
+          const storageRef = storage.ref('noticias/' + file.name);
+          await storageRef.put(file);
+          imageUrl = await storageRef.getDownloadURL();
+        }
+
+        const noticia = {
+          title,
+          subtitle,
+          content,
+          type,
+          image: imageUrl,
+          date: new Date().toISOString()
+        };
+
+        await salvarNoticiaFirestore(noticia);
+        alert('Notícia adicionada com sucesso!');
         newsForm.reset();
         quill.setContents([]);
-        newsForm.querySelector('button[type="submit"]').textContent = 'Adicionar Notícia';
-      }
-
-      function deleteNews(index) {
-        if (confirm('Tem certeza que deseja excluir esta notícia?')) {
-          news.splice(index, 1);
-          localStorage.setItem('news', JSON.stringify(news));
-          renderNews();
-          resetForm();
-        }
-      }
-
-      function editNews(index) {
-        editIndex = index;
-        const item = news[index];
-        document.getElementById('editTitle').value = item.title;
-        document.getElementById('editSubtitle').value = item.subtitle || '';
-        document.getElementById('editContent').value = item.content;
-        document.getElementById('editType').value = item.type || '';
-        imageRemoved = false;
-
-        const currentImageDiv = document.getElementById('currentImage');
-        if (item.image) {
-          currentImageDiv.innerHTML = `<img src="${item.image}" class="img-fluid rounded mb-2" style="max-height: 150px;">`;
-          document.getElementById('removeImage').style.display = 'inline-block';
-        } else {
-          currentImageDiv.innerHTML = '<em>Sem imagem</em>';
-          document.getElementById('removeImage').style.display = 'none';
-        }
-
-        const modal = new bootstrap.Modal(document.getElementById('editModal'));
-        modal.show();
-      }
-
-      document.getElementById('removeImage').addEventListener('click', () => {
-        document.getElementById('currentImage').innerHTML = '<em>Sem imagem</em>';
-        document.getElementById('removeImage').style.display = 'none';
-        imageRemoved = true;
-      });
-
-      document.getElementById('editForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById('editTitle').value;
-        const subtitle = document.getElementById('editSubtitle').value;
-        const content = document.getElementById('editContent').value;
-        const type = document.getElementById('editType').value;
-        const imageInput = document.getElementById('editImage');
-
-        let image = news[editIndex].image;
-
-        if (imageInput.files.length > 0) {
-          image = await fileToBase64(imageInput.files[0]);
-        } else if (imageRemoved) {
-          image = null;
-        }
-
-        news[editIndex] = { title, subtitle, content, type, image, date: news[editIndex].date || new Date().toISOString() };
-        localStorage.setItem('news', JSON.stringify(news));
-        renderNews();
-
-        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+        carregarNoticias();
       });
 
       loginForm.addEventListener('submit', (e) => {
@@ -245,7 +154,7 @@
           sessionStorage.setItem('loggedIn', 'true');
           loginForm.style.display = 'none';
           adminPanel.style.display = 'block';
-          renderNews();
+          carregarNoticias();
         } else {
           alert('Senha incorreta!');
         }
@@ -253,7 +162,6 @@
 
       logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('loggedIn');
-        resetForm();
         loginForm.style.display = 'block';
         adminPanel.style.display = 'none';
       });
@@ -262,45 +170,9 @@
         if (sessionStorage.getItem('loggedIn') === 'true') {
           loginForm.style.display = 'none';
           adminPanel.style.display = 'block';
-          renderNews();
-        } else {
-          loginForm.style.display = 'block';
+          carregarNoticias();
         }
       });
-
-      newsForm.addEventListener('submit', async (e) => {
-	  e.preventDefault();
-
-	  // Atualiza o campo hidden com o conteúdo do Quill
-	  const content = quill.root.innerHTML;
-	  document.getElementById('content').value = content;
-
-	  const title = document.getElementById('title').value.trim();
-	  const subtitle = document.getElementById('subtitle').value.trim();
-	  const type = document.getElementById('type').value;
-	  const imageInput = document.getElementById('image');
-	  const today = new Date();
-
-	  if (!title || !type || !content) {
-		alert('Preencha todos os campos obrigatórios: título, tipo e conteúdo.');
-		return;
-	  }
-
-	  let image = null;
-	  if (imageInput.files.length > 0) {
-		image = await fileToBase64(imageInput.files[0]);
-	  }
-
-	  const id = `noticia-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-	  news.push({ id, title, subtitle, content, type, image, date: today.toISOString() });
-
-	  localStorage.setItem('news', JSON.stringify(news));
-	  renderNews();
-	  resetForm();
-
-	  console.log('Notícia adicionada com sucesso:', { id, title, subtitle, content, type, image });
-	});
-
     </script>
   </body>
 </html>
