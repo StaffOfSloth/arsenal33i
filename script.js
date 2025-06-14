@@ -1,3 +1,22 @@
+// Firebase SDK
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+<script>
+  // 1. Configuração Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBXIMj62bxOl5m4q0t_va0BrUJqldUfHfE",
+  authDomain: "arsenal33i.firebaseapp.com",
+  projectId: "arsenal33i",
+  storageBucket: "arsenal33i.firebasestorage.app",
+  messagingSenderId: "81028420714",
+  appId: "1:81028420714:web:928e9644dd89a7f0252613",
+  measurementId: "G-0M2H3N7P30"
+};
+
+// 2. Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const newsPerPage = 6;
 let currentPage = 1;
 
