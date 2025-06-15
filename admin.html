@@ -1,178 +1,136 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Painel Administrativo - Arsenal33i</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
-    <style>
-      body { background-color: #f8f9fa; }
-      .admin-header { background-color: #6f42c1; color: white; padding: 1rem; }
-      .btn-purple { background-color: #6f42c1; color: white; }
-      .btn-purple:hover { background-color: #5a34a1; }
-      #adminPanel { display: none; }
-    </style>
-  </head>
-  <body>
-    <div class="container mt-5">
-      <h2 class="text-center mb-4">Login Administrativo</h2>
-      <form id="loginForm" class="w-50 mx-auto">
-        <div class="mb-3">
-          <input type="password" id="password" class="form-control" placeholder="Senha" required />
-        </div>
-        <button type="submit" class="btn btn-purple w-100">Entrar</button>
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Administrativo - Arsenal33i</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <link rel="icon" type="image/png" href="a33i-icon.png">
+  <style>
+    body { background-color: #f8f9fa; }
+    .admin-header { background-color: #6f42c1; color: white; padding: 1rem; }
+    .btn-purple { background-color: #6f42c1; color: white; }
+    .btn-purple:hover { background-color: #5a34a1; }
+    #adminPanel { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Login Administrativo</h2>
+    <form id="loginForm" class="w-50 mx-auto">
+      <input type="email" id="email" class="form-control mb-2" placeholder="E-mail" required />
+      <input type="password" id="password" class="form-control mb-3" placeholder="Senha" required />
+      <button type="submit" class="btn btn-purple w-100">Entrar</button>
+    </form>
+
+    <div id="adminPanel" class="mt-5">
+      <div class="admin-header d-flex justify-content-between align-items-center">
+        <h1>Painel Administrativo - Arsenal33i</h1>
+        <button id="logoutBtn" class="btn btn-danger btn-sm"><i class="bi bi-box-arrow-right"></i></button>
+      </div>
+
+      <h3 class="mt-4">Gerenciar Notícias</h3>
+      <form id="newsForm" class="mb-4">
+        <input type="text" id="title" class="form-control mb-2" placeholder="Título" required />
+        <input type="text" id="subtitle" class="form-control mb-2" placeholder="Subtítulo" />
+        <div id="editor-container" style="height: 150px;" class="mb-2"></div>
+        <input type="file" id="image" class="form-control mb-2" accept="image/*" />
+        <select id="type" class="form-control mb-2" required>
+          <option value="">Tipo de notícia</option>
+          <option value="Atualização">Atualização</option>
+          <option value="Novidades">Novidades</option>
+          <option value="Comunidade">Comunidade</option>
+          <option value="Evento">Evento</option>
+        </select>
+        <button type="submit" class="btn btn-purple">Adicionar Notícia</button>
       </form>
 
-      <div id="adminPanel" class="mt-5">
-        <div class="admin-header d-flex justify-content-between align-items-center">
-          <h1>Painel Administrativo - Arsenal33i</h1>
-          <button id="logoutBtn" class="btn btn-danger btn-sm">
-            <i class="bi bi-box-arrow-right"></i>
-          </button>
-        </div>
-
-        <h3 class="mt-4">Gerenciar Notícias</h3>
-        <form id="newsForm" class="mb-4">
-          <input type="text" id="title" class="form-control mb-2" placeholder="Título" required />
-          <input type="text" id="subtitle" class="form-control mb-2" placeholder="Subtítulo" />
-          <div id="editor-container" style="height: 150px;" class="mb-2"></div>
-          <input type="hidden" id="content" />
-          <label for="image" class="form-label">Imagem</label>
-          <input type="file" id="image" class="form-control mb-2" accept="image/*" />
-          <label for="type">Tipo de notícia:</label>
-          <select id="type" required class="form-control mb-3">
-            <option value="">Selecione o tipo</option>
-            <option value="Atualização">Atualização</option>
-            <option value="Novidades">Novidades</option>
-            <option value="Comunidade">Comunidade</option>
-            <option value="Evento">Evento</option>
-          </select>
-          <button type="submit" class="btn btn-purple">Adicionar Notícia</button>
-        </form>
-
-        <ul class="list-group" id="newsList"></ul>
-      </div>
+      <ul class="list-group" id="newsList"></ul>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script>
-	const firebaseConfig = {
-	  apiKey: "AIzaSyBXIMj62bxOl5m4q0t_va0BrUJqldUfHfE",
-	  authDomain: "arsenal33i.firebaseapp.com",
-	  projectId: "arsenal33i",
-	  storageBucket: "arsenal33i.firebasestorage.app",
-	  messagingSenderId: "81028420714",
-	  appId: "1:81028420714:web:928e9644dd89a7f0252613",
-	  measurementId: "G-0M2H3N7P30"
-	};
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "...", authDomain: "...", projectId: "...",
+      storageBucket: "...", messagingSenderId: "...", appId: "...",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(), db = firebase.firestore();
+    const quill = new Quill('#editor-container', { theme: 'snow' });
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const storage = firebase.storage();
+    const loginForm = document.getElementById('loginForm');
+    const adminPanel = document.getElementById('adminPanel');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const newsForm = document.getElementById('newsForm');
+    const newsList = document.getElementById('newsList');
 
-      const quill = new Quill('#editor-container', { theme: 'snow' });
-      const loginForm = document.getElementById('loginForm');
-      const adminPanel = document.getElementById('adminPanel');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const newsForm = document.getElementById('newsForm');
-      const newsList = document.getElementById('newsList');
-      const PASSWORD = '123';
-
-      function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = err => reject(err);
-          reader.readAsDataURL(file);
-        });
-      }
-
-      async function salvarNoticiaFirestore(noticia) {
-        await db.collection('noticias').add(noticia);
-      }
-
-      async function carregarNoticias() {
-        newsList.innerHTML = '';
-        const snapshot = await db.collection('noticias').orderBy('date', 'desc').get();
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const li = document.createElement('li');
-          li.className = 'list-group-item';
-          li.textContent = `${data.title} - ${new Date(data.date).toLocaleDateString('pt-BR')}`;
-          newsList.appendChild(li);
-        });
-      }
-
-      newsForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        document.getElementById('content').value = quill.root.innerHTML;
-
-        const title = document.getElementById('title').value.trim();
-        const subtitle = document.getElementById('subtitle').value.trim();
-        const content = document.getElementById('content').value;
-        const type = document.getElementById('type').value;
-        const imageInput = document.getElementById('image');
-
-        if (!title || !type || !content) {
-          alert('Preencha todos os campos obrigatórios.');
-          return;
-        }
-
-        let imageUrl = null;
-        if (imageInput.files.length > 0) {
-          const file = imageInput.files[0];
-          const storageRef = storage.ref('noticias/' + file.name);
-          await storageRef.put(file);
-          imageUrl = await storageRef.getDownloadURL();
-        }
-
-        const noticia = {
-          title,
-          subtitle,
-          content,
-          type,
-          image: imageUrl,
-          date: new Date().toISOString()
-        };
-
-        await salvarNoticiaFirestore(noticia);
-        alert('Notícia adicionada com sucesso!');
-        newsForm.reset();
-        quill.setContents([]);
-        carregarNoticias();
-      });
-
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const inputPass = document.getElementById('password').value;
-        if (inputPass === PASSWORD) {
-          sessionStorage.setItem('loggedIn', 'true');
-          loginForm.style.display = 'none';
-          adminPanel.style.display = 'block';
-          carregarNoticias();
-        } else {
-          alert('Senha incorreta!');
-        }
-      });
-
-      logoutBtn.addEventListener('click', () => {
-        sessionStorage.removeItem('loggedIn');
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        loginForm.style.display = 'none';
+        adminPanel.style.display = 'block';
+        loadNews();
+      } else {
         loginForm.style.display = 'block';
         adminPanel.style.display = 'none';
-      });
+      }
+    });
 
-      document.addEventListener('DOMContentLoaded', () => {
-        if (sessionStorage.getItem('loggedIn') === 'true') {
-          loginForm.style.display = 'none';
-          adminPanel.style.display = 'block';
-          carregarNoticias();
-        }
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      auth.signInWithEmailAndPassword(email.value, password.value)
+        .catch(err => alert('Erro: '+err.message));
+    });
+
+    logoutBtn.onclick = () => auth.signOut();
+
+    async function loadNews() {
+      const snapshot = await db.collection('news').orderBy('date', 'desc').get();
+      newsList.innerHTML = '';
+      snapshot.forEach(doc => {
+        const item = { id: doc.id, ...doc.data() };
+        newsList.innerHTML += `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>${item.title}</span>
+            <button class="btn btn-sm btn-danger" onclick="deleteNews('${item.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </li>`;
       });
-    </script>
-  </body>
+    }
+
+    newsForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        title: title.value,
+        subtitle: subtitle.value,
+        content: quill.root.innerHTML,
+        type: type.value,
+        date: firebase.firestore.Timestamp.now(),
+      };
+      if (image.files[0]) {
+        const file = image.files[0];
+        const ref = firebase.storage().ref().child(`images/${Date.now()}_${file.name}`);
+        const snap = await ref.put(file);
+        data.image = await snap.ref.getDownloadURL();
+      }
+      await db.collection('news').add(data);
+      loadNews();
+      newsForm.reset();
+      quill.setContents([]);
+    });
+
+    async function deleteNews(id) {
+      if (confirm('Excluir esta notícia?')) {
+        await db.collection('news').doc(id).delete();
+        loadNews();
+      }
+    }
+  </script>
+</body>
 </html>
