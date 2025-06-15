@@ -121,7 +121,7 @@
       };
       if (image.files[0]) {
         const file = image.files[0];
-        const ref = firebase.storage().ref().child(`${Date.now()}_${file.name}`);
+        const ref = firebase.storage().ref().child(`images/${Date.now()}_${file.name}`);
         const snap = await ref.put(file);
         data.image = await snap.ref.getDownloadURL();
       }
