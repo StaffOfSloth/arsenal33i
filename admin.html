@@ -95,7 +95,7 @@
     logoutBtn.onclick = () => auth.signOut();
 
     async function loadNews() {
-      const snapshot = await db.collection('news').orderBy('date', 'desc').get();
+      const snapshot = await db.collection('noticias').orderBy('date', 'desc').get();
       newsList.innerHTML = '';
       snapshot.forEach(doc => {
         const item = { id: doc.id, ...doc.data() };
@@ -124,7 +124,7 @@
         const snap = await ref.put(file);
         data.image = await snap.ref.getDownloadURL();
       }
-      await db.collection('news').add(data);
+      await db.collection('noticias').add(data);
       loadNews();
       newsForm.reset();
       quill.setContents([]);
@@ -132,7 +132,7 @@
 
     async function deleteNews(id) {
       if (confirm('Excluir esta notícia?')) {
-        await db.collection('news').doc(id).delete();
+        await db.collection('noticias').doc(id).delete();
         loadNews();
       }
     }
